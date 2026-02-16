@@ -1,16 +1,30 @@
 import QtQuick
 import org.kde.kwin
 import com.github.luisbocanegra.trayicon 1.0
+import com.github.luisbocanegra.kwinrcwatcher 1.0
 import "../code/utils.js" as Utils
 
 Item {
     id: root
-    property bool debugEnabled: KWin.readConfig("debugEnabled", false)
-    property var hideByDefaultClass: Utils.commaSeparate(KWin.readConfig("hideByDefaultClass", ""))
-    property bool countUseDot: KWin.readConfig("countUseDot", false)
-    property bool hideOnMinimize: KWin.readConfig("hideOnMinimize", false)
+    property bool debugEnabled
+    property var hideByDefaultClass
+    property bool countUseDot
+    property bool hideOnMinimize
     property var trayIcons: new Object()
     readonly property Component trayIconComponent: TrayIcon {}
+
+    function reloadConfig() {
+        console.log("KWin Minimize2Tray Reloading configuration");
+        debugEnabled = KWin.readConfig("debugEnabled", false);
+        hideByDefaultClass = Utils.commaSeparate(KWin.readConfig("hideByDefaultClass", ""));
+        countUseDot = KWin.readConfig("countUseDot", false);
+        hideOnMinimize = KWin.readConfig("hideOnMinimize", false);
+        console.log(JSON.stringify(hideByDefaultClass));
+    }
+
+    KwinrcWatcher {
+        onConfigChanged: root.reloadConfig()
+    }
 
     ShortcutHandler {
         name: "Minimize to tray"
@@ -29,6 +43,7 @@ Item {
     }
 
     Component.onCompleted: {
+        reloadConfig();
         Workspace.windowAdded.connect(window => Utils.setup(window));
         Workspace.windowAdded.connect(window => {
             Utils.setupAutoHide(window);

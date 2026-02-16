@@ -78,7 +78,7 @@ function addTrayIcon(window) {
         "toolTipText": formattedWindowInfo(window),
         "launcherUrl": launcherUrl,
         "xdgName": window.desktopFileName,
-        "countUseDot": countUseDot
+        "countUseDot": Qt.binding(function () { return countUseDot; })
     });
     trayItem.requestShowHide.connect(toggleShowHide);
     trayItem.requestClose.connect(closeWindow);
